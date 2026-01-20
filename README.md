@@ -1,6 +1,6 @@
-# ios_fluid_interactions
+# iOS Fluid Interactions
 
-iOS-style fluid interactions for Flutter - spring physics, elastic animations, drag-to-select menus, and glow effects.
+A Flutter package providing iOS-style fluid, spring-based animations and touch interactions.
 
 ## Features
 
@@ -8,11 +8,29 @@ iOS-style fluid interactions for Flutter - spring physics, elastic animations, d
 
 A widget that applies elastic spring animations on tap with iOS-style "bouncy" interactions:
 
-- **Scale animation**: Quick spring effect when pressed
-- **Jelly effect**: Deforms in drag direction with volume preservation
-- **Glow effect**: Optional radial glow under cursor
-- **Long tap support**: Configurable duration and callback
+- **Gesture detection**: Handles tap, long tap, drag
+- **Elastic animation**: Spring physics with 5 animation controllers
+- **Cursor glow**: Optional radial glow via `showCursorGlow`
 - **Adaptive scaling**: Auto-calculates scale based on widget size
+- **Volume preservation**: Jelly effect during drag
+- **Extension types**: Type-safe presets for physics parameters
+
+### Glow
+
+Easy-to-use radial glow effect widget that auto-tracks pointer position:
+
+- **Auto-tracking**: Wraps any widget, no manual position tracking needed
+- **Simple API**: Just `Glow(enabled: true, child: MyWidget())`
+- **Customizable**: Radius, color, and blend mode
+
+### Elastic Types
+
+Type-safe extension types for configuring physics parameters:
+
+- **ElasticDampingIntencity**: Controls bounce behavior (low/medium/high)
+- **DragIntensity**: Controls movement during drag (none/low/medium/high)
+- **DeformIntensity**: Controls jelly effect (low/medium/high)
+- **Scaling**: Controls scale on tap (none/slight/adaptive)
 
 ## Installation
 
@@ -21,101 +39,186 @@ Add this to your package's `pubspec.yaml`:
 ```yaml
 dependencies:
   ios_fluid_interactions:
-    path: packages/ios_fluid_interactions
-```
-
-Or for pub.dev (when published):
-
-```yaml
-dependencies:
-  ios_fluid_interactions: ^0.1.0
+    path: ../ios_fluid_interactions
 ```
 
 ## Usage
 
-### ElasticTapGesture
+### ElasticTapGesture - Complete solution
 
 ```dart
-import 'package:ios_fluid_interactions/ios_fluid_interactions.dart';
-
 // Basic usage
 ElasticTapGesture(
   onTap: () => print('Tapped!'),
+  child: MyWidget(),
+)
+
+// With cursor glow (iOS-style touch feedback)
+ElasticTapGesture(
+  onTap: () => print('Tapped!'),
+  showCursorGlow: true,
+  child: MyWidget(),
+)
+
+// With long tap and custom physics using extension types
+ElasticTapGesture(
+  onTap: () => print('Tapped!'),
+  onLongTap: () => print('Long pressed!'),
+  scaling: Scaling.adaptive,
+  elasticDampingIntencity: ElasticDampingIntencity.high,
+  deformIntensity: DeformIntensity.high,
+  dragIntensity: DragIntensity.low,
+  showCursorGlow: true,
+  child: MyWidget(),
+)
+
+// Using fixed scale instead of adaptive
+ElasticTapGesture(
+  onTap: () => print('Tapped!'),
+  scaling: Scaling.slight, // Fixed 1.05 scale
+  showCursorGlow: true,
+  child: MyWidget(),
+)
+```
+
+### Glow - Standalone glow
+
+```dart
+// Easy to use - just wrap your widget
+Glow(
+  enabled: true,
   child: Container(
     width: 100,
     height: 100,
     color: Colors.blue,
-    child: Text('Tap Me'),
   ),
 )
 
-// With custom parameters
-ElasticTapGesture(
-  onTap: () => print('Tapped!'),
-  onLongTap: () => print('Long pressed!'),
-  tapScale: 1.2,              // Scale to 120% when pressed
-  adaptiveScaling: false,     // Use fixed scale instead of auto
-  elasticDamping: 15.0,       // More bouncy deform animation
-  deformIntensity: 1.5,       // More responsive deformation
-  dragIntensity: 0.5,         // Less movement during drag
-  showCursorGlow: true,       // Enable glow effect
-  child: MyButton(),
+// Custom styling
+Glow(
+  enabled: true,
+  radius: 300.0,  // Larger glow
+  color: Colors.blue,  // Blue glow
+  blendMode: BlendMode.color,  // Solid color
+  child: MyWidget(),
 )
 ```
 
-## API Reference
+### Extension Types Reference
+
+```dart
+// ElasticDampingIntencity - Controls bounce behavior
+ElasticDampingIntencity.low     // 5.0 - More bounce, more oscillation
+ElasticDampingIntencity.medium  // 10.0 - Balanced bounce
+ElasticDampingIntencity.high    // 20.0 - Less bounce, settles quickly
+ElasticDampingIntencity(15.0)   // Custom value
+
+// DragIntensity - Controls movement during drag
+DragIntensity.none    // 0.0 - Widget stays in place
+DragIntensity.low     // 0.5 - Widget follows finger less
+DragIntensity.medium  // 1.0 - Normal movement
+DragIntensity.high    // 2.0 - Widget follows finger more
+
+// DeformIntensity - Controls jelly effect
+DeformIntensity.low     // 0.5 - Subtle jelly effect
+DeformIntensity.medium  // 1.0 - Balanced jelly effect
+DeformIntensity.high    // 2.0 - Dramatic jelly effect
+
+// Scaling - Controls scale on tap
+Scaling.none          // 1.0 - No scaling
+Scaling.slight         // 1.05 - Small scale
+Scaling.adaptive       // Auto-calculate based on widget size
+Scaling(1.2)          // Custom scale value
+```
+
+## Parameters
 
 ### ElasticTapGesture
 
-| Parameter           | Type            | Default  | Description                    |
-| ------------------- | --------------- | -------- | ------------------------------ |
-| `child`             | `Widget`        | required | Widget to animate              |
-| `onTap`             | `VoidCallback?` | `null`   | Called on release (if inside)  |
-| `onLongTap`         | `VoidCallback?` | `null`   | Called after `longTapDuration` |
-| `tapScale`          | `double`        | `1.1`    | Scale factor when pressed      |
-| `longTapDuration`   | `Duration`      | `500ms`  | Delay before `onLongTap`       |
-| `adaptiveScaling`   | `bool`          | `true`   | Auto-calculate scale by size   |
-| `scaleGrowthPixels` | `double`        | `10.0`   | Pixel growth for adaptive      |
-| `elasticDamping`    | `double`        | `10.0`   | Deform bounce (lower = more)   |
-| `deformIntensity`   | `double`        | `1.0`    | Jelly responsiveness           |
-| `dragIntensity`     | `double`        | `1.0`    | Movement during drag           |
-| `showCursorGlow`    | `bool`          | `false`  | Enable radial glow             |
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `child` | required | Widget to display and animate |
+| `onTap` | null | Called when tap is released inside widget |
+| `onLongTap` | null | Called when tap is held for 500ms |
+| `onTapDown` | null | Called when pointer goes down |
+| `onTapUp` | null | Called when pointer goes up |
+| `onPointerMove` | null | Called when pointer moves |
+| `enabled` | true | Whether elastic behavior is enabled |
+| `showCursorGlow` | false | Show radial glow effect under cursor |
+| `scaling` | `Scaling.adaptive` | Scale behavior (see extension types) |
+| `scaleGrowthPixels` | 10.0 | Pixel growth for adaptive scaling |
+| `elasticDampingIntencity` | `ElasticDampingIntencity.medium` | Damping for elastic animation |
+| `deformIntensity` | `DeformIntensity.medium` | Deformation responsiveness during drag |
+| `dragIntensity` | `DragIntensity.medium` | Drag movement intensity |
+
+### Glow
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `child` | required | Widget to display |
+| `enabled` | true | Whether glow effect is enabled |
+| `color` | Colors.white | Color of glow |
+| `radius` | 250.0 | Radius of glow effect |
+| `blendMode` | BlendMode.overlay | Blend mode for glow |
 
 ## How It Works
 
+### ElasticTapGesture Animation
+
+The widget uses 5 independent animation controllers for smooth, natural motion:
+
+1. **Scale** - Overall size (1.0 = normal size)
+2. **DeformX** - Horizontal stretch (1.0 = normal, >1 = stretched, <1 = compressed)
+3. **DeformY** - Vertical stretch (1.0 = normal)
+4. **ShiftX** - Horizontal offset in pixels (0.0 = no offset)
+5. **ShiftY** - Vertical offset in pixels (0.0 = no offset)
+
+All controllers are unbounded (can exceed 0-1 range) to allow spring overshoot for natural bounce effects.
+
+### Volume Preservation (Jelly Effect)
+
+When dragging, the widget maintains visual "volume preservation":
+
+- Moving horizontally → stretches X, compresses Y
+- Moving vertically → stretches Y, compresses X
+- Moving diagonally → balanced (no deformation)
+
+This creates the characteristic "jelly" or "rubber" feel.
+
 ### Spring Physics
 
-All animations use `SpringSimulation` for natural motion:
+The widget uses three different spring configurations:
 
-- **Mass**: Affects inertia (higher = slower start/stop)
-- **Stiffness**: Affects speed (higher = faster)
-- **Damping**: Affects bounce (lower = more oscillation)
+1. **Press spring** - Quick, snappy (mass: 1.2, stiffness: 500, damping: 15)
+2. **Release spring** - Smooth, controlled (mass: 1.0, stiffness: 180, damping: 24)
+3. **Elastic spring** - Bouncy, user-configurable damping (mass: 1.0, stiffness: 250, damping: customizable)
 
-### Volume Preservation
+### Adaptive Scaling
 
-The jelly effect maintains visual "volume":
+When `Scaling.adaptive`, the widget calculates scale to produce consistent pixel growth across different widget sizes:
 
-- Drag horizontal → stretch X, compress Y
-- Drag vertical → stretch Y, compress X
-- Drag diagonal → balanced (no deformation)
+Formula: `scale = 1.0 + (scaleGrowthPixels / diagonal)`
 
-### Drag-to-Select
+Examples with `scaleGrowthPixels = 10`:
+- 50x50 widget → scale ≈ 1.14
+- 100x100 widget → scale ≈ 1.07
+- 200x200 widget → scale ≈ 1.04
 
-Menu tracking uses pointer events:
+## Architecture
 
-1. **PointerDown**: Detects tapped item, triggers haptic
-2. **PointerMove**: Updates highlighted item
-3. **PointerUp**: Triggers action, dismisses menu
+```
+ElasticTapGesture (gesture detection)
+  ├── Spring animations (5 controllers)
+  │     ├── Scale animation
+  │     ├── DeformX/Y animation (jelly effect)
+  │     └── ShiftX/Y animation (drag movement)
+  └── Optional Glow (radial highlight)
+        └── CustomPaint
+```
 
-### Popover Positioning
-
-MenuButton automatically calculates popover position:
-
-- Checks available space above and below button
-- Positions popover where more space is available
-- Handles edge cases when position unavailable
-- Fallbacks to center if needed
+**Independent use:**
+- `Glow` - Glow effect only, auto-tracks pointer
 
 ## License
 
-MIT License - See LICENSE file for details.
+MIT License - see LICENSE file for details

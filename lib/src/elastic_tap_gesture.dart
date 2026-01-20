@@ -3,6 +3,9 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
+import 'package:ios_fluid_interactions/src/glow_painter.dart';
+
+import 'elastic_types.dart';
 
 // ============================================================================
 // SPRING CONFIGURATIONS
@@ -42,8 +45,8 @@ class _Springs {
   ///
   /// Damping is user-configurable via [ElasticTapGesture.elasticDamping].
   /// Lower damping = more jelly-like bounce.
-  static SpringDescription elastic(double damping) =>
-      SpringDescription(mass: 1.0, stiffness: 250, damping: damping);
+  static SpringDescription elastic(ElasticDampingIntencity intensity) =>
+      SpringDescription(mass: 1.0, stiffness: 250, damping: intensity.value);
 }
 
 // ============================================================================
@@ -78,49 +81,24 @@ class _Springs {
 ///
 /// This creates the characteristic "jelly" or "rubber" feel.
 ///
-/// ## Example usage:
-///
-/// ```dart
-/// ElasticTapGesture(
-///   onTap: () => print('Tapped!'),
-///   child: Container(
-///     width: 100,
-///     height: 100,
-///     color: Colors.blue,
-///     child: Center(child: Text('Tap Me')),
-///   ),
-/// )
-/// ```
-///
-/// ## With custom parameters:
-///
-/// ```dart
-/// ElasticTapGesture(
-///   onTap: () => print('Tapped!'),
-///   onLongTap: () => print('Long pressed!'),
-///   tapScale: 1.2,              // Scale to 120% when pressed
-///   adaptiveScaling: false,     // Use fixed scale instead of auto
-///   elasticDamping: 15.0,       // More bouncy deform animation
-///   deformIntensity: 1.5,       // More responsive deformation
-///   dragIntensity: 0.5,         // Less movement during drag
-///   child: MyButton(),
-/// )
-/// ```
 class ElasticTapGesture extends StatefulWidget {
   const ElasticTapGesture({
     super.key,
     required this.child,
     this.onTap,
     this.onLongTap,
-    this.tapScale = 1.1,
+    this.scaling = Scaling.adaptive,
     this.longTapDuration = const Duration(milliseconds: 500),
-    this.adaptiveScaling = true,
     this.scaleGrowthPixels = 10.0,
-    this.elasticDamping = 10.0,
-    this.deformIntensity = 1.0,
-    this.dragIntensity = 1.0,
+    this.elasticDampingIntencity = ElasticDampingIntencity.medium,
+    this.deformIntensity = DeformIntensity.medium,
+    this.dragIntensity = DragIntensity.medium,
     this.showCursorGlow = false,
+    this.glowColor = Colors.white,
   });
+
+  /// Color of the glow effect.
+  final Color glowColor;
 
   /// The widget to display and animate on tap.
   final Widget child;
@@ -140,44 +118,36 @@ class ElasticTapGesture extends StatefulWidget {
   /// Scale factor when pressed (default: 1.1 = 110%).
   ///
   /// Ignored if [adaptiveScaling] is true.
-  final double tapScale;
+  final Scaling scaling;
 
   /// Duration before [onLongTap] triggers (default: 500ms).
   final Duration longTapDuration;
 
-  /// Auto-calculate scale based on widget size.
-  ///
-  /// When true, smaller widgets scale more than larger ones,
-  /// creating consistent pixel growth across all sizes.
-  ///
-  /// Formula: scale = 1.0 + (scaleGrowthPixels / diagonal)
-  ///
-  /// Examples with scaleGrowthPixels = 10:
-  /// - 50x50 widget → scale ≈ 1.14
-  /// - 100x100 widget → scale ≈ 1.07
-  /// - 200x200 widget → scale ≈ 1.04
-  final bool adaptiveScaling;
-
   /// Pixel growth for adaptive scaling (default: 10.0).
   final double scaleGrowthPixels;
 
-  /// Damping for elastic deformation animation (default: 10.0).
+  /// Damping for elastic deformation animation (default: ElasticDampingIntencity.medium).
   ///
-  /// - Lower (5.0) = more bounce, more oscillation
-  /// - Higher (30.0) = less bounce, settles quickly
-  final double elasticDamping;
+  /// - ElasticDampingIntencity.low (5.0) = more bounce, jelly-like
+  /// - ElasticDampingIntencity.medium (10.0) = balanced bounce
+  /// - ElasticDampingIntencity.high (20.0) = less bounce, settles quickly
+  /// - ElasticDampingIntencity(value) = custom damping value
+  final ElasticDampingIntencity elasticDampingIntencity;
 
-  /// Deformation responsiveness during drag (default: 1.0).
+  /// Deformation responsiveness during drag (default: DeformIntensity.medium).
   ///
-  /// - Lower (0.5) = subtle jelly effect
-  /// - Higher (2.0) = dramatic jelly effect
-  final double deformIntensity;
+  /// - DeformIntensity.low (0.5) = subtle jelly effect
+  /// - DeformIntensity.medium (1.0) = balanced jelly effect
+  /// - DeformIntensity.high (2.0) = dramatic jelly effect
+  final DeformIntensity deformIntensity;
 
-  /// Drag movement intensity (default: 1.0).
+  /// Drag movement intensity (default: DragIntensity.medium).
   ///
-  /// - 0.0 = widget stays in place
-  /// - 2.0 = widget follows finger more
-  final double dragIntensity;
+  /// - DragIntensity.none = no movement
+  /// - DragIntensity.low = widget follows finger less
+  /// - DragIntensity.medium = normal movement
+  /// - DragIntensity.high = widget follows finger more
+  final DragIntensity dragIntensity;
 
   /// Show radial glow effect under cursor (default: false).
   final bool showCursorGlow;
@@ -361,9 +331,7 @@ class _ElasticTapGestureState extends State<ElasticTapGesture>
     _stopAll();
 
     // --- Calculate target scale ---
-    _targetScale = widget.tapScale;
-
-    if (widget.adaptiveScaling) {
+    if (widget.scaling == Scaling.adaptive) {
       final box = context.findRenderObject() as RenderBox?;
       if (box != null) {
         // Use diagonal for consistent behavior regardless of aspect ratio
@@ -375,6 +343,8 @@ class _ElasticTapGestureState extends State<ElasticTapGesture>
         // This creates consistent PIXEL increase across all sizes
         _targetScale = 1.0 + (widget.scaleGrowthPixels / diagonal);
       }
+    } else {
+      _targetScale = widget.scaling.value;
     }
 
     // Start scale-up animation with quick, snappy spring
@@ -432,9 +402,9 @@ class _ElasticTapGestureState extends State<ElasticTapGesture>
     const baseShift = 0.02; // Base translation amount
 
     // Apply user intensity multipliers
-    final factor = baseFactor / widget.deformIntensity;
-    final max = maxDeform * widget.deformIntensity;
-    final shift = baseShift * widget.dragIntensity;
+    final factor = baseFactor / widget.deformIntensity.value;
+    final max = maxDeform * widget.deformIntensity.value;
+    final shift = baseShift * widget.dragIntensity.value;
 
     // Calculate raw deformation for each axis (0 to max)
     // Uses absolute value - we care about distance, not direction
@@ -519,7 +489,7 @@ class _ElasticTapGestureState extends State<ElasticTapGesture>
   void _animateToRest() {
     if (_disposed) return;
 
-    final elastic = _Springs.elastic(widget.elasticDamping);
+    final elastic = _Springs.elastic(widget.elasticDampingIntencity);
 
     // Scale returns with smooth spring (less bounce)
     _springTo(_scale, 1.0, _Springs.release);
@@ -588,7 +558,9 @@ class _ElasticTapGestureState extends State<ElasticTapGesture>
             if (_cursorPos != null && widget.showCursorGlow)
               Positioned.fill(
                 child: IgnorePointer(
-                  child: CustomPaint(painter: _GlowPainter(_cursorPos!)),
+                  child: CustomPaint(
+                    painter: GlowPainter(_cursorPos!, widget.glowColor),
+                  ),
                 ),
               ),
           ],
@@ -609,40 +581,4 @@ class _ElasticTapGestureState extends State<ElasticTapGesture>
       child: child,
     );
   }
-}
-
-// ============================================================================
-// GLOW PAINTER
-// ============================================================================
-
-/// Paints a radial glow effect at the specified center point.
-///
-/// Creates a subtle highlight under the user's finger using:
-/// - RadialGradient from white to transparent
-/// - Overlay blend mode for subtle brightness effect
-class _GlowPainter extends CustomPainter {
-  _GlowPainter(this.center);
-
-  /// Center point of the glow (cursor position).
-  final Offset center;
-
-  /// Radius of the glow effect in pixels.
-  static const _radius = 250.0;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..shader = const RadialGradient(
-        colors: [
-          Colors.white, // Bright center
-          Colors.transparent, // Fades to invisible
-        ],
-      ).createShader(Rect.fromCircle(center: center, radius: _radius))
-      ..blendMode = BlendMode.overlay; // Subtle brightness, not solid white
-
-    canvas.drawCircle(center, _radius, paint);
-  }
-
-  @override
-  bool shouldRepaint(_GlowPainter old) => old.center != center;
 }
