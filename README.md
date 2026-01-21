@@ -16,11 +16,11 @@ See the fluid animations and elastic interactions in action.
 
 <table>
   <tr>
-    <td width="33%" align="center">
-      <img src="./screenshots/1.png" width="300" />
+    <td width="50%" align="center">
+      <img src="https://github.com/ketanchoyal/ios_fluid_interactions/raw/main/screenshots/1.png" width="400" />
     </td>
-    <td width="33%" align="center">
-      <img src="./screenshots/2.png" width="300" />
+    <td width="50%" align="center">
+      <img src="https://github.com/ketanchoyal/ios_fluid_interactions/raw/main/screenshots/2.png" width="400" />
     </td>
   </tr>
 </table>
