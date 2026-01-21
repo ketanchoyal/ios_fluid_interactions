@@ -137,11 +137,11 @@ class FluidBottomNavBarTheme {
   Color _getIconInactiveColor() => iconInactiveColor ?? Colors.grey.shade600;
   Color _getLabelActiveColor() => labelActiveColor ?? const Color(0xFF4CAF50);
   Color _getLabelInactiveColor() => labelInactiveColor ?? Colors.grey.shade600;
-  Color _getShadowColor() => shadowColor ?? Colors.white;
+  Color _getShadowColor() => shadowColor ?? Colors.black;
   TextStyle _getLabelTextStyle() =>
       labelTextStyle ??
       const TextStyle(fontSize: 10, letterSpacing: 0.2, height: 1.3);
-  double _getBorderRadius() => borderRadius ?? 40;
+  double _getBorderRadius() => borderRadius ?? 45;
   double _getNavItemWidth() => navItemWidth ?? 64;
   double _getIconSize() => iconSize ?? 20;
   double _getShadowBlurRadius() => shadowBlurRadius ?? 20;

@@ -47,6 +47,7 @@ class FluidNavItem extends StatelessWidget {
     this.padding,
     this.borderRadius,
     this.position,
+    this.glowColor,
   });
 
   /// Current pointer position for glow center.
@@ -75,6 +76,7 @@ class FluidNavItem extends StatelessWidget {
 
   /// Optional border radius to override default theme radius.
   final BorderRadius? borderRadius;
+  final Color? glowColor;
 
   @override
   Widget build(BuildContext context) {
@@ -89,15 +91,19 @@ class FluidNavItem extends StatelessWidget {
       borderRadius: borderRadius ?? BorderRadius.circular(25),
       child: ElasticTapGesture(
         child: Padding(
-          padding: padding ?? const EdgeInsets.symmetric(vertical: 4),
+          padding: padding ?? const EdgeInsets.symmetric(vertical: 2),
           child: Stack(
             fit: StackFit.passthrough,
+            clipBehavior: Clip.antiAliasWithSaveLayer,
             children: [
               if (position != null && isHighlighted && showCursorGlow)
                 Positioned.fill(
                   child: IgnorePointer(
                     child: CustomPaint(
-                      painter: GlowPainter(position!, Colors.white),
+                      painter: GlowPainter(
+                        position!,
+                        glowColor ?? Colors.black.withValues(alpha: 0.2),
+                      ),
                     ),
                   ),
                 ),

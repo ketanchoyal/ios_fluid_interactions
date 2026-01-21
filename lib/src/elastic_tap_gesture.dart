@@ -407,7 +407,9 @@ class _ElasticTapGestureState extends State<ElasticTapGesture>
 
     // Call onTap if released inside and no long tap
     if (_isInside && !_longTapFired) {
-      widget.onTap?.call();
+      try {
+        widget.onTap?.call();
+      } catch (e) {}
     }
 
     _resetState();
@@ -509,6 +511,7 @@ class _ElasticTapGestureState extends State<ElasticTapGesture>
         transform: matrix,
         alignment: Alignment.center, // Scale from center
         child: Stack(
+          clipBehavior: Clip.none,
           fit: StackFit.passthrough, // Stack takes child's size
           children: [
             widget.child,

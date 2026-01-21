@@ -415,21 +415,25 @@ class _FluidBottomNavBarState extends State<FluidBottomNavBar>
       ..translateByDouble(shiftX, shiftY, 0, 1)
       ..scaleByDouble(scaleX, scaleY, 1, 1);
 
-    return ElasticTapGesture(
-      child: ValueListenableBuilder<bool>(
-        valueListenable: widget.shrinkNotifier,
-        builder: (context, isShrunk, child) {
-          final showFloating =
-              widget.floatingWidget != null &&
-              isShrunk &&
-              (widget.floatingWidgetTabIndex == null ||
-                  widget.currentIndex == widget.floatingWidgetTabIndex);
+    return ValueListenableBuilder<bool>(
+      valueListenable: widget.shrinkNotifier,
+      builder: (context, isShrunk, child) {
+        final showFloating =
+            widget.floatingWidget != null &&
+            isShrunk &&
+            (widget.floatingWidgetTabIndex == null ||
+                widget.currentIndex == widget.floatingWidgetTabIndex);
 
-          return Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Listener(
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            ElasticTapGesture(
+              dragIntensity: DragIntensity.none,
+              deformIntensity: DeformIntensity.low,
+              elasticDampingIntencity: ElasticDampingIntencity.low,
+
+              child: Listener(
                 behavior: HitTestBehavior.translucent,
                 onPointerDown: _handlePointerDown,
                 onPointerMove: _handlePointerMove,
@@ -441,30 +445,30 @@ class _FluidBottomNavBarState extends State<FluidBottomNavBar>
                   child: _buildNavBarContainer(resolvedTheme, isShrunk),
                 ),
               ),
-              if (widget.floatingWidget != null)
-                Flexible(
-                  child: AnimatedOpacity(
-                    duration: resolvedTheme.opacityAnimationDuration,
-                    opacity: showFloating ? 1.0 : 0.0,
-                    child: showFloating
-                        ? Padding(
-                            padding: const EdgeInsets.only(left: 10, right: 10),
-                            child: widget.floatingWidget!,
-                          )
-                        : const SizedBox.shrink(),
-                  ),
+            ),
+            if (widget.floatingWidget != null)
+              Flexible(
+                child: AnimatedOpacity(
+                  duration: resolvedTheme.opacityAnimationDuration,
+                  opacity: showFloating ? 1.0 : 0.0,
+                  child: showFloating
+                      ? Padding(
+                          padding: const EdgeInsets.only(left: 10, right: 10),
+                          child: widget.floatingWidget!,
+                        )
+                      : const SizedBox.shrink(),
                 ),
-              if (widget.trailingWidget != null)
-                widget.trailingWidget!
-              else if (widget.trailingButtonConfig != null)
-                FluidTrailingActionButton(
-                  currentIndex: widget.currentIndex,
-                  config: widget.trailingButtonConfig!,
-                ),
-            ],
-          );
-        },
-      ),
+              ),
+            if (widget.trailingWidget != null)
+              widget.trailingWidget!
+            else if (widget.trailingButtonConfig != null)
+              FluidTrailingActionButton(
+                currentIndex: widget.currentIndex,
+                config: widget.trailingButtonConfig!,
+              ),
+          ],
+        );
+      },
     );
   }
 
@@ -477,6 +481,7 @@ class _FluidBottomNavBarState extends State<FluidBottomNavBar>
       child: Glow(
         enabled: widget.enableGlow,
         child: Container(
+          padding: EdgeInsets.symmetric(vertical: 0, horizontal: 2),
           decoration: BoxDecoration(
             color: theme.backgroundColor,
             boxShadow: [
@@ -486,7 +491,9 @@ class _FluidBottomNavBarState extends State<FluidBottomNavBar>
                 spreadRadius: theme.shadowSpreadRadius,
               ),
             ],
-            borderRadius: BorderRadius.all(Radius.circular(theme.borderRadius)),
+            borderRadius: BorderRadius.all(
+              Radius.circular(theme.borderRadius * 0.98),
+            ),
             border: Border.all(
               color: theme.borderColor.withValues(alpha: theme.borderAlpha),
               width: 0.1,
@@ -495,6 +502,8 @@ class _FluidBottomNavBarState extends State<FluidBottomNavBar>
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
             child: Stack(
+              fit: StackFit.passthrough,
+              clipBehavior: Clip.antiAliasWithSaveLayer,
               children: [
                 // Highlight overlay
                 // ValueListenableBuilder<Rect?>(
@@ -556,95 +565,25 @@ class _FluidBottomNavBarState extends State<FluidBottomNavBar>
 
     return Container(
       key: key,
-      child: ClipRect(
-        child: AnimatedAlign(
-          alignment: Alignment.centerLeft,
-          duration: theme.shrinkAnimationDuration,
-          curve: Curves.easeOutCubic,
-          widthFactor: isVisible ? 1.0 : 0.0,
-          heightFactor: 1.0,
-          child: AnimatedOpacity(
-            duration: theme.opacityAnimationDuration,
-            opacity: isVisible ? 1.0 : 0.0,
-            child: widget.itemBuilder != null
-                ? widget.itemBuilder!(context, index, destination, isSelected)
-                : FluidNavItem(
-                    icon: displayIcon,
-                    label: destination.label,
-                    isActive: isSelected,
-                    isHighlighted: isHighlighted,
-                    theme: theme,
-                    position: _cursorPos,
-                  ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDefaultNavItem({
-    required IconData icon,
-    required String label,
-    required bool isActive,
-    required bool isHighlighted,
-    required ResolvedFluidBottomNavBarTheme theme,
-  }) {
-    final activeColor = isActive
-        ? theme.iconActiveColor
-        : theme.iconInactiveColor;
-    final activeLabelColor = isActive
-        ? theme.labelActiveColor
-        : theme.labelInactiveColor;
-
-    // Scale up slightly when highlighted
-    final double scale = isHighlighted ? 1.1 : 1.0;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 2.5),
-      child: AnimatedScale(
-        scale: scale,
-        duration: const Duration(milliseconds: 200),
+      child: AnimatedAlign(
+        alignment: Alignment.centerLeft,
+        duration: theme.shrinkAnimationDuration,
         curve: Curves.easeOutCubic,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(25),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 2.5),
-            child: SizedBox(
-              width: theme.navItemWidth,
-              height: 50, // Fixed height for nav item
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const SizedBox(height: 4),
-                  AnimatedScale(
-                    scale: isActive ? 1.3 : 1.0,
-                    duration: theme.scaleAnimationDuration,
-                    curve: Curves.elasticOut,
-                    child: Icon(icon, size: theme.iconSize, color: activeColor),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: AnimatedScale(
-                      scale: isActive ? 1.1 : 1.0,
-                      duration: theme.scaleAnimationDuration,
-                      curve: Curves.elasticOut,
-                      child: Text(
-                        label,
-                        style: theme.labelTextStyle.copyWith(
-                          fontWeight: isActive
-                              ? FontWeight.w600
-                              : FontWeight.w400,
-                          color: activeLabelColor,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.visible,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+        widthFactor: isVisible ? 1.0 : 0.0,
+        heightFactor: 1.0,
+        child: AnimatedOpacity(
+          duration: theme.opacityAnimationDuration,
+          opacity: isVisible ? 1.0 : 0.0,
+          child: widget.itemBuilder != null
+              ? widget.itemBuilder!(context, index, destination, isSelected)
+              : FluidNavItem(
+                  icon: displayIcon,
+                  label: destination.label,
+                  isActive: isSelected,
+                  isHighlighted: isHighlighted,
+                  theme: theme,
+                  position: _cursorPos,
+                ),
         ),
       ),
     );
