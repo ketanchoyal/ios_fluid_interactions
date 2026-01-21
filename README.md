@@ -1,8 +1,47 @@
 # iOS Fluid Interactions
 
-A Flutter package providing iOS-style fluid, spring-based animations and touch interactions.
+A Flutter package providing iOS-style fluid, spring-based animations and touch interactions with beautiful bottom navigation bar components.
+
+## Demo
+
+▶️ **Watch the demo video on [Twitter](https://twitter.com/ketanchoyal/status/2012653863015252214)**
+
+See the fluid animations and elastic interactions in action.
+
+## Screenshots
+
+<div align="center">
+
+<table>
+  <tr>
+    <td width="33%" align="center">
+      <img src="./screenshots/1.png" width="300" />
+    </td>
+    <td width="33%" align="center">
+      <img src="./screenshots/2.png" width="300" />
+    </td>
+  </tr>
+</table>
+
+</div>
+
+---
 
 ## Features
+
+### FluidBottomNavBar
+
+A beautiful iOS-style bottom navigation bar with fluid animations and elastic interactions:
+
+- **Elastic drag interactions**: Spring-based physics with jelly effect during drag
+- **Cursor glow tracking**: Optional radial glow that follows pointer position
+- **Shrink-to-select**: Tap current tab to shrink nav bar and reveal floating widget
+- **Adaptive scaling**: Auto-calculates scale based on widget size
+- **Custom destinations**: Define navigation items with `FluidNavDestination`
+- **Trailing action button**: Optional action button with slide animations
+- **Theme support**: Full theming via `FluidBottomNavBarTheme`
+- **Custom item builder**: Use your own widget builder for nav items
+- **Highlight tracking**: Visual highlight follows drag across items
 
 ### ElasticTapGesture
 
@@ -32,6 +71,8 @@ Type-safe extension types for configuring physics parameters:
 - **DeformIntensity**: Controls jelly effect (low/medium/high)
 - **Scaling**: Controls scale on tap (none/slight/adaptive)
 
+---
+
 ## Installation
 
 Add this to your package's `pubspec.yaml`:
@@ -39,10 +80,136 @@ Add this to your package's `pubspec.yaml`:
 ```yaml
 dependencies:
   ios_fluid_interactions:
-    path: ../ios_fluid_interactions
 ```
 
+---
+
 ## Usage
+
+### FluidBottomNavBar - Complete navigation solution
+
+```dart
+// Define your destinations
+final destinations = [
+  FluidNavDestination(
+    icon: Icons.home_outlined,
+    filledIcon: Icons.home,
+    label: 'Home',
+  ),
+  FluidNavDestination(
+    icon: Icons.flag_outlined,
+    label: 'Goals',
+  ),
+  FluidNavDestination(
+    icon: Icons.history_outlined,
+    label: 'History',
+  ),
+];
+
+// Use the navigation bar
+ValueNotifier<bool> shrinkNotifier = ValueNotifier<bool>(false);
+
+FluidBottomNavBar(
+  currentIndex: currentIndex,
+  onTap: (index) => setState(() => currentIndex = index),
+  shrinkNotifier: shrinkNotifier,
+  destinations: destinations,
+  // Optional: Show floating widget when nav bar shrinks
+  floatingWidget: MyFloatingWidget(),
+  floatingWidgetTabIndex: 0, // Only show on first tab
+  // Optional: Add trailing action button
+  trailingButtonConfig: FluidTrailingActionButtonConfig(
+    icon: Icons.add,
+    onTap: (index) => print('Add tapped on tab $index'),
+  ),
+  // Optional: Custom theme
+  theme: FluidBottomNavBarTheme(
+    backgroundColor: Colors.white,
+    activeColor: Colors.green,
+    inactiveColor: Colors.grey,
+    borderRadius: 30,
+  ),
+  // Optional: Elastic physics configuration
+  scaling: Scaling.adaptive,
+  elasticDampingIntensity: ElasticDampingIntencity.medium,
+  deformIntensity: DeformIntensity.medium,
+  dragIntensity: DragIntensity.medium,
+  enableGlow: true, // Enable cursor glow
+)
+
+// Somewhere in your build method - trigger shrink on current tab tap
+// (This is handled automatically by FluidBottomNavBar)
+```
+
+**Shrink-to-select behavior:**
+
+- Tap any non-current tab → Navigate to that tab
+- Tap the current tab → Shrink nav bar and show `floatingWidget` (if configured)
+- Tap again → Expand nav bar
+
+### FluidTrailingActionButton - Standalone action button
+
+```dart
+FluidTrailingActionButton(
+  currentIndex: currentIndex,
+  config: FluidTrailingActionButtonConfig(
+    icon: Icons.add,
+    onTap: (index) => print('Tapped on tab $index'),
+    backgroundColor: Colors.green,
+    iconColor: Colors.white,
+    showCursorGlow: true,
+  ),
+)
+
+// Or with dynamic icon per tab
+FluidTrailingActionButton(
+  currentIndex: currentIndex,
+  config: FluidTrailingActionButtonConfig(
+    iconBuilder: (index) {
+      switch (index) {
+        case 0: return Icons.add;
+        case 1: return Icons.edit;
+        case 2: return Icons.delete;
+        default: return Icons.more_horiz;
+      }
+    },
+    onTap: (index) => print('Action on tab $index'),
+  ),
+)
+
+// Or with fully custom builder
+FluidTrailingActionButton(
+  currentIndex: currentIndex,
+  config: FluidTrailingActionButtonConfig(
+    builder: (context, index, onTap, child) {
+      return FloatingActionButton(
+        onPressed: onTap,
+        child: Icon(Icons.add),
+      );
+    },
+    onTap: (index) => print('Tapped'),
+  ),
+)
+```
+
+### FluidBottomNavBarTheme - Custom styling
+
+```dart
+FluidBottomNavBarTheme(
+  backgroundColor: Colors.white,
+  activeColor: Color(0xFF4CAF50), // Green
+  inactiveColor: Color(0xFF9E9E9E), // Grey
+  labelColor: Color(0xFF9E9E9E),
+  activeLabelColor: Color(0xFF4CAF50),
+  borderColor: Colors.white,
+  shadowColor: Colors.white,
+  borderRadius: 30,
+  shadowBlurRadius: 20,
+  shadowSpreadRadius: 1,
+  shrinkAnimationDuration: Duration(milliseconds: 300),
+  opacityAnimationDuration: Duration(milliseconds: 200),
+).resolve() // Call resolve() to get resolved theme
+```
 
 ### ElasticTapGesture - Complete solution
 
@@ -131,35 +298,97 @@ Scaling.adaptive       // Auto-calculate based on widget size
 Scaling(1.2)          // Custom scale value
 ```
 
+---
+
 ## Parameters
+
+### FluidBottomNavBar
+
+| Parameter                 | Default                          | Description                              |
+| ------------------------- | -------------------------------- | ---------------------------------------- |
+| `currentIndex`            | required                         | Currently selected tab index             |
+| `onTap`                   | required                         | Called when a destination is tapped      |
+| `shrinkNotifier`          | required                         | Controls nav bar shrink state            |
+| `destinations`            | required                         | List of navigation destinations          |
+| `theme`                   | `null`                           | Optional theme configuration             |
+| `floatingWidget`          | `null`                           | Widget to show when nav bar shrinks      |
+| `floatingWidgetTabIndex`  | `null`                           | Only show floating widget on this tab    |
+| `trailingButtonConfig`    | `null`                           | Configuration for trailing action button |
+| `trailingWidget`          | `null`                           | Custom trailing widget                   |
+| `enableGlow`              | `true`                           | Enable cursor glow effect                |
+| `itemBuilder`             | `null`                           | Custom builder for nav items             |
+| `scaling`                 | `Scaling.adaptive`               | Scale behavior                           |
+| `elasticDampingIntensity` | `ElasticDampingIntencity.medium` | Damping for elastic animation            |
+| `deformIntensity`         | `DeformIntensity.medium`         | Deformation during drag                  |
+| `dragIntensity`           | `DragIntensity.medium`           | Drag movement intensity                  |
+| `scaleGrowthPixels`       | `10.0`                           | Pixel growth for adaptive scaling        |
+
+### FluidTrailingActionButton
+
+| Parameter      | Default  | Description              |
+| -------------- | -------- | ------------------------ |
+| `currentIndex` | required | Current navigation index |
+| `config`       | required | Button configuration     |
+
+### FluidTrailingActionButtonConfig
+
+| Parameter            | Default             | Description                |
+| -------------------- | ------------------- | -------------------------- |
+| `icon`               | `null`              | Single icon for all tabs   |
+| `iconBuilder`        | `null`              | Dynamic icon per tab       |
+| `builder`            | `null`              | Fully custom button widget |
+| `onTap`              | required            | Tap callback with index    |
+| `backgroundColor`    | `Color(0x1A4CAF50)` | Button background color    |
+| `iconColor`          | `Color(0xFF4CAF50)` | Icon color                 |
+| `borderColor`        | `Colors.white`      | Border color               |
+| `borderColorAlpha`   | `0.1`               | Border transparency (0-1)  |
+| `shadowColor`        | `Colors.white`      | Shadow color               |
+| `shadowBlurRadius`   | `20`                | Shadow blur radius         |
+| `shadowSpreadRadius` | `1`                 | Shadow spread radius       |
+| `width`              | `64`                | Button width               |
+| `height`             | `52`                | Button height              |
+| `iconSize`           | `24`                | Icon size                  |
+| `showCursorGlow`     | `true`              | Enable cursor glow         |
+| `borderRadius`       | `40`                | Border radius              |
+
+### FluidNavDestination
+
+| Parameter    | Default  | Description             |
+| ------------ | -------- | ----------------------- |
+| `icon`       | required | Icon for inactive state |
+| `label`      | required | Label text              |
+| `filledIcon` | `null`   | Icon for active state   |
+| `key`        | `null`   | Optional key            |
 
 ### ElasticTapGesture
 
-| Parameter | Default | Description |
-|-----------|---------|-------------|
-| `child` | required | Widget to display and animate |
-| `onTap` | null | Called when tap is released inside widget |
-| `onLongTap` | null | Called when tap is held for 500ms |
-| `onTapDown` | null | Called when pointer goes down |
-| `onTapUp` | null | Called when pointer goes up |
-| `onPointerMove` | null | Called when pointer moves |
-| `enabled` | true | Whether elastic behavior is enabled |
-| `showCursorGlow` | false | Show radial glow effect under cursor |
-| `scaling` | `Scaling.adaptive` | Scale behavior (see extension types) |
-| `scaleGrowthPixels` | 10.0 | Pixel growth for adaptive scaling |
-| `elasticDampingIntencity` | `ElasticDampingIntencity.medium` | Damping for elastic animation |
-| `deformIntensity` | `DeformIntensity.medium` | Deformation responsiveness during drag |
-| `dragIntensity` | `DragIntensity.medium` | Drag movement intensity |
+| Parameter                 | Default                          | Description                               |
+| ------------------------- | -------------------------------- | ----------------------------------------- |
+| `child`                   | required                         | Widget to display and animate             |
+| `onTap`                   | `null`                           | Called when tap is released inside widget |
+| `onLongTap`               | `null`                           | Called when tap is held for 500ms         |
+| `onTapDown`               | `null`                           | Called when pointer goes down             |
+| `onTapUp`                 | `null`                           | Called when pointer goes up               |
+| `onPointerMove`           | `null`                           | Called when pointer moves                 |
+| `enabled`                 | `true`                           | Whether elastic behavior is enabled       |
+| `showCursorGlow`          | `false`                          | Show radial glow effect under cursor      |
+| `scaling`                 | `Scaling.adaptive`               | Scale behavior (see extension types)      |
+| `scaleGrowthPixels`       | `10.0`                           | Pixel growth for adaptive scaling         |
+| `elasticDampingIntencity` | `ElasticDampingIntencity.medium` | Damping for elastic animation             |
+| `deformIntensity`         | `DeformIntensity.medium`         | Deformation responsiveness during drag    |
+| `dragIntensity`           | `DragIntensity.medium`           | Drag movement intensity                   |
 
 ### Glow
 
-| Parameter | Default | Description |
-|-----------|---------|-------------|
-| `child` | required | Widget to display |
-| `enabled` | true | Whether glow effect is enabled |
-| `color` | Colors.white | Color of glow |
-| `radius` | 250.0 | Radius of glow effect |
-| `blendMode` | BlendMode.overlay | Blend mode for glow |
+| Parameter   | Default             | Description                    |
+| ----------- | ------------------- | ------------------------------ |
+| `child`     | required            | Widget to display              |
+| `enabled`   | `true`              | Whether glow effect is enabled |
+| `color`     | `Colors.white`      | Color of glow                  |
+| `radius`    | `250.0`             | Radius of glow effect          |
+| `blendMode` | `BlendMode.overlay` | Blend mode for glow            |
+
+---
 
 ## How It Works
 
@@ -200,13 +429,30 @@ When `Scaling.adaptive`, the widget calculates scale to produce consistent pixel
 Formula: `scale = 1.0 + (scaleGrowthPixels / diagonal)`
 
 Examples with `scaleGrowthPixels = 10`:
+
 - 50x50 widget → scale ≈ 1.14
 - 100x100 widget → scale ≈ 1.07
 - 200x200 widget → scale ≈ 1.04
 
+### FluidBottomNavBar Interactions
+
+1. **Tap navigation**: Tap any destination to navigate
+2. **Shrink-to-select**: Tap the current tab to shrink the nav bar
+3. **Floating widget reveal**: Shrink reveals the `floatingWidget` (if configured)
+4. **Drag highlighting**: Drag across items with visual highlight following
+5. **Haptic feedback**: Medium impact on tap, selection click on highlight change
+
+---
+
 ## Architecture
 
 ```
+FluidBottomNavBar (navigation bar)
+  ├── ElasticTapGesture (container drag)
+  ├── Glow (optional cursor glow)
+  ├── FluidNavItem (individual items)
+  └── FluidTrailingActionButton (optional action button)
+
 ElasticTapGesture (gesture detection)
   ├── Spring animations (5 controllers)
   │     ├── Scale animation
@@ -216,8 +462,7 @@ ElasticTapGesture (gesture detection)
         └── CustomPaint
 ```
 
-**Independent use:**
-- `Glow` - Glow effect only, auto-tracks pointer
+---
 
 ## License
 
