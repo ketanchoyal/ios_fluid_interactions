@@ -10,14 +10,15 @@ import 'package:flutter/material.dart';
 /// - RadialGradient from color to transparent
 /// - Configurable blend mode for different effects
 class GlowPainter extends CustomPainter {
-  GlowPainter(this.center, this.color);
+  GlowPainter(this.center, this.color, [double? radius])
+    : radius = radius ?? 250.0;
 
   /// Center point of the glow (cursor position).
   final Offset center;
   final Color color;
 
   /// Radius of the glow effect in pixels.
-  static const _radius = 250.0;
+  final double radius;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -27,10 +28,10 @@ class GlowPainter extends CustomPainter {
           color, // Bright center
           Colors.transparent, // Fades to invisible
         ],
-      ).createShader(Rect.fromCircle(center: center, radius: _radius))
+      ).createShader(Rect.fromCircle(center: center, radius: radius))
       ..blendMode = BlendMode.overlay; // Subtle brightness, not solid white
 
-    canvas.drawCircle(center, _radius, paint);
+    canvas.drawCircle(center, radius, paint);
   }
 
   @override

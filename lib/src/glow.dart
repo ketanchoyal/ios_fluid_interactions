@@ -36,6 +36,7 @@ class Glow extends StatefulWidget {
     this.enabled = true,
     this.color = Colors.white,
     required this.child,
+    this.radius,
   });
 
   /// Whether glow effect is enabled.
@@ -46,6 +47,8 @@ class Glow extends StatefulWidget {
 
   /// Widget to add glow to.
   final Widget child;
+
+  final double? radius;
 
   @override
   State<Glow> createState() => _GlowState();
@@ -80,9 +83,15 @@ class _GlowState extends State<Glow> {
           widget.child,
           if (_position != null)
             Positioned.fill(
-              child: IgnorePointer(
-                child: CustomPaint(
-                  painter: GlowPainter(_position!, widget.color),
+              child: ClipRect(
+                child: IgnorePointer(
+                  child: CustomPaint(
+                    painter: GlowPainter(
+                      _position!,
+                      widget.color,
+                      widget.radius,
+                    ),
+                  ),
                 ),
               ),
             ),

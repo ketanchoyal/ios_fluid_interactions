@@ -511,7 +511,6 @@ class _ElasticTapGestureState extends State<ElasticTapGesture>
         transform: matrix,
         alignment: Alignment.center, // Scale from center
         child: Stack(
-          clipBehavior: Clip.none,
           fit: StackFit.passthrough, // Stack takes child's size
           children: [
             widget.child,
@@ -519,9 +518,11 @@ class _ElasticTapGestureState extends State<ElasticTapGesture>
             // Optional cursor glow effect
             if (_cursorPos != null && widget.showCursorGlow)
               Positioned.fill(
-                child: IgnorePointer(
-                  child: CustomPaint(
-                    painter: GlowPainter(_cursorPos!, widget.glowColor),
+                child: ClipRect(
+                  child: IgnorePointer(
+                    child: CustomPaint(
+                      painter: GlowPainter(_cursorPos!, widget.glowColor),
+                    ),
                   ),
                 ),
               ),

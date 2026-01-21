@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import '../elastic_tap_gesture.dart';
+import 'package:ios_fluid_interactions/ios_fluid_interactions.dart';
 
 /// Callback type for trailing action button tap events with index.
 typedef TrailingActionTapCallback = void Function(int index);
@@ -260,7 +259,6 @@ class _FluidTrailingActionButtonState extends State<FluidTrailingActionButton>
     }
 
     Widget child = ElasticTapGesture(
-      showCursorGlow: config.showCursorGlow,
       onTap: () => config.onTap(widget.currentIndex),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(config.borderRadius),
@@ -303,11 +301,14 @@ class _FluidTrailingActionButtonState extends State<FluidTrailingActionButton>
                 child: Opacity(opacity: _slideAnimation.value, child: child),
               );
             },
-            child: Icon(
-              key: ValueKey<int>(widget.currentIndex),
-              icon,
-              size: config.iconSize,
-              color: iconColor,
+            child: Glow(
+              enabled: config.showCursorGlow,
+              child: Icon(
+                key: ValueKey<int>(widget.currentIndex),
+                icon,
+                size: config.iconSize,
+                color: iconColor,
+              ),
             ),
           ),
         ),

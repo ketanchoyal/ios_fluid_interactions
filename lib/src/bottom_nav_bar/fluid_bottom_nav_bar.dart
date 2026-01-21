@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter/services.dart';
 import 'package:ios_fluid_interactions/ios_fluid_interactions.dart';
+import 'package:ios_fluid_interactions/src/glow_painter.dart';
 
 import '../spring_configs.dart';
 
@@ -423,21 +424,33 @@ class _FluidBottomNavBarState extends State<FluidBottomNavBar>
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            ElasticTapGesture(
-              dragIntensity: DragIntensity.none,
-              deformIntensity: DeformIntensity.low,
-              elasticDampingIntencity: ElasticDampingIntencity.low,
-
-              child: Listener(
-                behavior: HitTestBehavior.translucent,
-                onPointerDown: _handlePointerDown,
-                onPointerMove: _handlePointerMove,
-                onPointerUp: _handlePointerUp,
-                onPointerCancel: _handlePointerCancel,
-                child: Transform(
-                  transform: matrix,
-                  alignment: Alignment.center,
-                  child: _buildNavBarContainer(resolvedTheme, isShrunk),
+            Listener(
+              behavior: HitTestBehavior.translucent,
+              onPointerDown: _handlePointerDown,
+              onPointerMove: _handlePointerMove,
+              onPointerUp: _handlePointerUp,
+              onPointerCancel: _handlePointerCancel,
+              child: Transform(
+                transform: matrix,
+                alignment: Alignment.center,
+                child: Stack(
+                  fit: StackFit.passthrough,
+                  children: [
+                    _buildNavBarContainer(resolvedTheme, isShrunk),
+                    if (_cursorPos != null && widget.enableGlow)
+                      Positioned.fill(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(
+                            resolvedTheme.borderRadius,
+                          ),
+                          child: IgnorePointer(
+                            child: CustomPaint(
+                              painter: GlowPainter(_cursorPos!, Colors.white),
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ),
             ),
@@ -555,27 +568,44 @@ class _FluidBottomNavBarState extends State<FluidBottomNavBar>
         ? destination.filledIcon!
         : destination.icon;
 
-    return Container(
-      key: key,
-      child: AnimatedAlign(
-        alignment: Alignment.centerLeft,
-        duration: theme.shrinkAnimationDuration,
-        curve: Curves.easeOutCubic,
-        widthFactor: isVisible ? 1.0 : 0.0,
-        heightFactor: 1.0,
-        child: AnimatedOpacity(
-          duration: theme.opacityAnimationDuration,
-          opacity: isVisible ? 1.0 : 0.0,
-          child: widget.itemBuilder != null
-              ? widget.itemBuilder!(context, index, destination, isSelected)
-              : FluidNavItem(
-                  icon: displayIcon,
-                  label: destination.label,
-                  isActive: isSelected,
-                  isHighlighted: isHighlighted,
-                  theme: theme,
-                  position: _cursorPos,
-                ),
+    final scale = _safe(_scale.value, 1.0);
+    final deformX = _safe(_deformX.value, 1.0);
+    final deformY = _safe(_deformY.value, 1.0);
+    final shiftX = _shiftX.value.isFinite ? _shiftX.value : 0.0;
+    final shiftY = _shiftY.value.isFinite ? _shiftY.value : 0.0;
+
+    final scaleX = scale * deformX;
+    final scaleY = scale * deformY;
+
+    final matrix = Matrix4.identity()
+      ..translateByDouble(shiftX, shiftY, 0, 1)
+      ..scaleByDouble(scaleX, scaleY, 1, 1);
+
+    return Transform(
+      transform: matrix,
+      alignment: Alignment.center,
+      child: Container(
+        key: key,
+        child: AnimatedAlign(
+          alignment: Alignment.centerLeft,
+          duration: theme.shrinkAnimationDuration,
+          curve: Curves.easeOutCubic,
+          widthFactor: isVisible ? 1.0 : 0.0,
+          heightFactor: 1.0,
+          child: AnimatedOpacity(
+            duration: theme.opacityAnimationDuration,
+            opacity: isVisible ? 1.0 : 0.0,
+            child: widget.itemBuilder != null
+                ? widget.itemBuilder!(context, index, destination, isSelected)
+                : FluidNavItem(
+                    icon: displayIcon,
+                    label: destination.label,
+                    isActive: isSelected,
+                    isHighlighted: isHighlighted,
+                    theme: theme,
+                    position: _cursorPos,
+                  ),
+          ),
         ),
       ),
     );
