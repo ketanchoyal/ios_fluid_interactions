@@ -7,12 +7,7 @@ import 'package:flutter/physics.dart';
 import 'package:flutter/services.dart';
 import 'package:ios_fluid_interactions/ios_fluid_interactions.dart';
 
-import '../elastic_types.dart';
-import '../glow.dart';
 import '../spring_configs.dart';
-import 'fluid_nav_destination.dart';
-import 'fluid_nav_theme.dart';
-import 'fluid_trailing_action_button.dart';
 
 /// Callback type for navigation tap events.
 typedef NavTapCallback = void Function(int index);
@@ -446,19 +441,19 @@ class _FluidBottomNavBarState extends State<FluidBottomNavBar>
                 ),
               ),
             ),
-            if (widget.floatingWidget != null)
-              Flexible(
-                child: AnimatedOpacity(
-                  duration: resolvedTheme.opacityAnimationDuration,
-                  opacity: showFloating ? 1.0 : 0.0,
-                  child: showFloating
-                      ? Padding(
-                          padding: const EdgeInsets.only(left: 10, right: 10),
-                          child: widget.floatingWidget!,
-                        )
-                      : const SizedBox.shrink(),
-                ),
+            // if (widget.floatingWidget != null)
+            Flexible(
+              child: AnimatedOpacity(
+                duration: resolvedTheme.opacityAnimationDuration,
+                opacity: showFloating ? 1.0 : 0.0,
+                child: showFloating
+                    ? Padding(
+                        padding: const EdgeInsets.only(left: 10, right: 10),
+                        child: widget.floatingWidget!,
+                      )
+                    : const SizedBox.shrink(),
               ),
+            ),
             if (widget.trailingWidget != null)
               widget.trailingWidget!
             else if (widget.trailingButtonConfig != null)
@@ -494,16 +489,13 @@ class _FluidBottomNavBarState extends State<FluidBottomNavBar>
             borderRadius: BorderRadius.all(
               Radius.circular(theme.borderRadius * 0.98),
             ),
-            border: Border.all(
-              color: theme.borderColor.withValues(alpha: theme.borderAlpha),
-              width: 0.1,
-            ),
+            border: Border.all(color: theme.borderColor, width: 1),
           ),
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
             child: Stack(
-              fit: StackFit.passthrough,
-              clipBehavior: Clip.antiAliasWithSaveLayer,
+              // fit: StackFit.passthrough,
+              // clipBehavior: Clip.antiAliasWithSaveLayer,
               children: [
                 // Highlight overlay
                 // ValueListenableBuilder<Rect?>(

@@ -7,7 +7,12 @@ typedef TrailingActionTapCallback = void Function(int index);
 
 /// Builder for custom trailing button content.
 typedef TrailingButtonBuilder =
-    Widget Function(BuildContext context, int currentIndex, VoidCallback onTap);
+    Widget Function(
+      BuildContext context,
+      int currentIndex,
+      VoidCallback onTap,
+      Widget child,
+    );
 
 /// Configuration for [FluidTrailingActionButton] styling.
 ///
@@ -42,11 +47,10 @@ class FluidTrailingActionButtonConfig {
     this.shadowBlurRadius = 20,
     this.shadowSpreadRadius = 1,
     this.width = 64, // Matches nav item width
-    this.height = 50, // Matches nav item height
+    this.height = 52, // Matches nav item height
     this.iconSize = 24, // Changed from 28 to match nav item icon size
-    this.heroTag,
     this.showCursorGlow = true,
-    this.borderRadius = 25, // Changed from 40 to match nav item radius
+    this.borderRadius = 40, // Changed from 40 to match nav item radius
   });
 
   /// Single icon to use for all tabs.
@@ -104,9 +108,6 @@ class FluidTrailingActionButtonConfig {
   /// Default: 24
   final double iconSize;
 
-  /// Optional hero tag for animations.
-  final String? heroTag;
-
   /// Whether to show cursor glow effect.
   /// Default: true
   final bool showCursorGlow;
@@ -150,7 +151,6 @@ class FluidTrailingActionButtonConfig {
       width: width ?? this.width,
       height: height ?? this.height,
       iconSize: iconSize ?? this.iconSize,
-      heroTag: heroTag ?? this.heroTag,
       showCursorGlow: showCursorGlow ?? this.showCursorGlow,
       borderRadius: borderRadius ?? this.borderRadius,
     );
@@ -240,15 +240,6 @@ class _FluidTrailingActionButtonState extends State<FluidTrailingActionButton>
   Widget build(BuildContext context) {
     final config = widget.config;
 
-    // Use custom builder if provided
-    if (config.builder != null) {
-      return config.builder!(
-        context,
-        widget.currentIndex,
-        () => config.onTap(widget.currentIndex),
-      );
-    }
-
     final backgroundColor =
         config.backgroundColor ??
         const Color(0x1A4CAF50); // Matches nav bar default (green with opacity)
@@ -268,7 +259,7 @@ class _FluidTrailingActionButtonState extends State<FluidTrailingActionButton>
       return const SizedBox.shrink();
     }
 
-    return ElasticTapGesture(
+    Widget child = ElasticTapGesture(
       showCursorGlow: config.showCursorGlow,
       onTap: () => config.onTap(widget.currentIndex),
       child: ClipRRect(
@@ -297,6 +288,10 @@ class _FluidTrailingActionButtonState extends State<FluidTrailingActionButton>
           child: AnimatedBuilder(
             animation: _slideAnimation,
             builder: (context, child) {
+              final isJustOneIcon = config.icon != null;
+              if (isJustOneIcon) {
+                return child!;
+              }
               final slideValue = (1 - _slideAnimation.value) * 0.5;
               final offset = Offset(
                 _isGoingForward ? -slideValue : slideValue,
@@ -318,5 +313,16 @@ class _FluidTrailingActionButtonState extends State<FluidTrailingActionButton>
         ),
       ),
     );
+
+    // Use custom builder if provided
+    if (config.builder != null) {
+      return config.builder!(
+        context,
+        widget.currentIndex,
+        () => config.onTap(widget.currentIndex),
+        child,
+      );
+    }
+    return child;
   }
 }

@@ -28,7 +28,6 @@ class FluidBottomNavBarTheme {
     this.iconSize,
     this.shadowBlurRadius,
     this.shadowSpreadRadius,
-    this.borderAlpha,
     this.glowRadius,
     this.shrinkAnimationDuration,
     this.scaleAnimationDuration,
@@ -103,10 +102,6 @@ class FluidBottomNavBarTheme {
   /// Default: 10
   final double? shadowSpreadRadius;
 
-  /// Alpha/transparency for border color (0.0 - 1.0).
-  /// Default: 0.1
-  final double? borderAlpha;
-
   /// Radius for cursor glow effect.
   /// Default: 250.0
   final double? glowRadius;
@@ -146,7 +141,6 @@ class FluidBottomNavBarTheme {
   double _getIconSize() => iconSize ?? 20;
   double _getShadowBlurRadius() => shadowBlurRadius ?? 20;
   double _getShadowSpreadRadius() => shadowSpreadRadius ?? 10;
-  double _getBorderAlpha() => borderAlpha ?? 0.1;
   double _getGlowRadius() => glowRadius ?? 250.0;
   Duration _getShrinkAnimationDuration() =>
       shrinkAnimationDuration ?? const Duration(milliseconds: 300);
@@ -212,7 +206,6 @@ class FluidBottomNavBarTheme {
     double? iconSize,
     double? shadowBlurRadius,
     double? shadowSpreadRadius,
-    double? borderAlpha,
     double? glowRadius,
     Duration? shrinkAnimationDuration,
     Duration? scaleAnimationDuration,
@@ -232,7 +225,6 @@ class FluidBottomNavBarTheme {
       iconSize: iconSize ?? this.iconSize,
       shadowBlurRadius: shadowBlurRadius ?? this.shadowBlurRadius,
       shadowSpreadRadius: shadowSpreadRadius ?? this.shadowSpreadRadius,
-      borderAlpha: borderAlpha ?? this.borderAlpha,
       glowRadius: glowRadius ?? this.glowRadius,
       shrinkAnimationDuration:
           shrinkAnimationDuration ?? this.shrinkAnimationDuration,
@@ -264,7 +256,7 @@ class FluidBottomNavBarTheme {
       iconSize: _getIconSize(),
       shadowBlurRadius: _getShadowBlurRadius(),
       shadowSpreadRadius: _getShadowSpreadRadius(),
-      borderAlpha: _getBorderAlpha(),
+
       glowRadius: _getGlowRadius(),
       shrinkAnimationDuration: _getShrinkAnimationDuration(),
       scaleAnimationDuration: _getScaleAnimationDuration(),
@@ -289,7 +281,7 @@ class ResolvedFluidBottomNavBarTheme {
     required this.iconSize,
     required this.shadowBlurRadius,
     required this.shadowSpreadRadius,
-    required this.borderAlpha,
+
     required this.glowRadius,
     required this.shrinkAnimationDuration,
     required this.scaleAnimationDuration,
@@ -309,7 +301,7 @@ class ResolvedFluidBottomNavBarTheme {
   final double iconSize;
   final double shadowBlurRadius;
   final double shadowSpreadRadius;
-  final double borderAlpha;
+
   final double glowRadius;
   final Duration shrinkAnimationDuration;
   final Duration scaleAnimationDuration;

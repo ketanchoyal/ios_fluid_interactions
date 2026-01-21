@@ -1,4 +1,7 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:ios_fluid_interactions/ios_fluid_interactions.dart';
 
 void main() {
   runApp(const MyApp());
@@ -7,115 +10,162 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    // A dark theme to showcase the glass-morphism effect
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Fluid Nav Demo',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
+        brightness: Brightness.dark,
+        scaffoldBackgroundColor: const Color(0xFF1C1C1E),
+        useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const DemoScreen(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
+class DemoScreen extends StatefulWidget {
+  const DemoScreen({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<DemoScreen> createState() => _DemoScreenState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class _DemoScreenState extends State<DemoScreen> {
+  int _currentIndex = 0;
+  final ValueNotifier<bool> _shrinkNotifier = ValueNotifier(false);
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
+  @override
+  void dispose() {
+    _shrinkNotifier.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: .center,
+      extendBody: true, // Important for glass effect
+      backgroundColor: Colors.grey,
+      body: NotificationListener<UserScrollNotification>(
+        onNotification: (notification) {
+          if (notification.direction == ScrollDirection.reverse &&
+              !_shrinkNotifier.value) {
+            _shrinkNotifier.value = true;
+          } else if (notification.direction == ScrollDirection.forward &&
+              _shrinkNotifier.value) {
+            _shrinkNotifier.value = false;
+          }
+          return false;
+        },
+        child: Stack(
           children: [
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+            // Background content
+            Positioned.fill(
+              child: ListView.builder(
+                itemCount: 50,
+                padding: const EdgeInsets.only(bottom: 120),
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    title: Text(
+                      'Item $index',
+                      style: const TextStyle(color: Colors.white70),
+                    ),
+                    leading: CircleAvatar(
+                      backgroundColor: Colors.white10,
+                      child: Text('${index + 1}'),
+                    ),
+                  );
+                },
+              ),
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: FluidBottomNavBar(
+            currentIndex: _currentIndex,
+            onTap: (index) {
+              setState(() => _currentIndex = index);
+              // Auto-expand on tap
+              _shrinkNotifier.value = false;
+              if (index == 1) {
+                _shrinkNotifier.value = true;
+              }
+            },
+            shrinkNotifier: _shrinkNotifier,
+
+            // Custom Theme
+            theme: FluidBottomNavBarTheme(
+              backgroundColor: Colors.white.withOpacity(0.5),
+              iconActiveColor: Colors.white,
+              iconInactiveColor: Colors.white38,
+              shadowColor: Colors.white,
+              labelActiveColor: Colors.white,
+              labelInactiveColor: Colors.white38,
+            ),
+
+            // Navigation Items
+            destinations: [
+              const FluidNavDestination(
+                icon: CupertinoIcons.home,
+                filledIcon: CupertinoIcons.house_fill,
+                label: 'Home',
+              ),
+              const FluidNavDestination(
+                icon: CupertinoIcons.compass,
+                filledIcon: CupertinoIcons.compass_fill,
+                label: 'Explore',
+              ),
+              const FluidNavDestination(
+                icon: CupertinoIcons.person,
+                filledIcon: CupertinoIcons.person_fill,
+                label: 'Profile',
+              ),
+            ],
+
+            // Floating Widget (visible on specific tab when shrunk)
+            floatingWidgetTabIndex: 1, // Show on 'Explore' tab
+
+            floatingWidget: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.blueAccent,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: const Text(
+                'New',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                ),
+              ),
+            ),
+
+            // Trailing Action Button
+            trailingButtonConfig: FluidTrailingActionButtonConfig(
+              iconBuilder: (currentIndex) {
+                if (currentIndex == 1) return CupertinoIcons.alarm;
+                if (currentIndex == 2) return CupertinoIcons.add;
+                return CupertinoIcons.add;
+              },
+              onTap: (index) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Action on tab $index'),
+                    behavior: SnackBarBehavior.floating,
+                    duration: const Duration(seconds: 1),
+                  ),
+                );
+              },
+              backgroundColor: CupertinoColors.activeBlue,
+              iconColor: Colors.white,
+            ),
+          ),
+        ),
       ),
     );
   }

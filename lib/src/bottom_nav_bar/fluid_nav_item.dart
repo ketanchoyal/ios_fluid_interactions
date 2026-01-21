@@ -119,7 +119,7 @@ class FluidNavItem extends StatelessWidget {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      SizedBox(height: 6),
+                      SizedBox(height: 4),
                       AnimatedScale(
                         scale: isActive ? 1.3 : 1.0,
                         duration: theme.scaleAnimationDuration,
@@ -140,6 +140,8 @@ class FluidNavItem extends StatelessWidget {
                             child: Text(
                               label!,
                               style: theme.labelTextStyle.copyWith(
+                                letterSpacing: 0.2,
+                                height: 1.3,
                                 fontWeight: isActive
                                     ? FontWeight.w600
                                     : FontWeight.w400,
