@@ -6,48 +6,7 @@ import 'package:flutter/physics.dart';
 import 'package:ios_fluid_interactions/src/glow_painter.dart';
 
 import 'elastic_types.dart';
-
-// ============================================================================
-// SPRING CONFIGURATIONS
-// ============================================================================
-
-/// Predefined spring configurations for different animation phases.
-///
-/// Spring physics create natural, elastic motion. Each spring is defined by:
-/// - **mass**: Affects inertia (higher = slower to start/stop)
-/// - **stiffness**: Affects speed (higher = faster animation)
-/// - **damping**: Affects bounce (lower = more oscillation)
-class _Springs {
-  _Springs._();
-
-  /// Quick, snappy spring for press animation.
-  ///
-  /// High stiffness (500) = fast response
-  /// Low damping (15) = slight bounce
-  /// Medium mass (1.2) = natural feel
-  static const press = SpringDescription(
-    mass: 1.2,
-    stiffness: 500,
-    damping: 15,
-  );
-
-  /// Smooth, controlled spring for release animation.
-  ///
-  /// Lower stiffness (180) = slower than press
-  /// Higher damping (24) = less bounce, settles quickly
-  static const release = SpringDescription(
-    mass: 1.0,
-    stiffness: 180,
-    damping: 24,
-  );
-
-  /// Bouncy spring for elastic deformation.
-  ///
-  /// Damping is user-configurable via [ElasticTapGesture.elasticDamping].
-  /// Lower damping = more jelly-like bounce.
-  static SpringDescription elastic(ElasticDampingIntencity intensity) =>
-      SpringDescription(mass: 1.0, stiffness: 250, damping: intensity.value);
-}
+import 'spring_configs.dart';
 
 // ============================================================================
 // MAIN WIDGET
@@ -348,7 +307,7 @@ class _ElasticTapGestureState extends State<ElasticTapGesture>
     }
 
     // Start scale-up animation with quick, snappy spring
-    _springTo(_scale, _targetScale, _Springs.press);
+    _springTo(_scale, _targetScale, FluidSprings.press);
 
     // Start long tap timer if callback provided
     if (widget.onLongTap != null) {
@@ -489,10 +448,10 @@ class _ElasticTapGestureState extends State<ElasticTapGesture>
   void _animateToRest() {
     if (_disposed) return;
 
-    final elastic = _Springs.elastic(widget.elasticDampingIntencity);
+    final elastic = FluidSprings.elastic(widget.elasticDampingIntencity);
 
     // Scale returns with smooth spring (less bounce)
-    _springTo(_scale, 1.0, _Springs.release);
+    _springTo(_scale, 1.0, FluidSprings.release);
 
     // Deformation and shift return with bouncy spring
     _springTo(_deformX, 1.0, elastic);
