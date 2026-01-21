@@ -1,3 +1,5 @@
+[![Pub](https://img.shields.io/pub/v/ios_fluid_interactions)](https://pub.dev/packages/ios_fluid_interactions)
+
 # iOS Fluid Interactions
 
 A Flutter package providing iOS-style fluid, spring-based animations and touch interactions with beautiful bottom navigation bar components.
