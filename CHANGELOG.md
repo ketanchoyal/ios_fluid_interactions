@@ -5,6 +5,17 @@ All notable changes to the iOS Fluid Interactions package will be documented in 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-01-21
+
+### Enhanced
+- Refactored `FluidNavDestination` API to use `Widget` instead of `IconData`
+  - Changed `icon` parameter to accept any Widget (not just IconData)
+  - Renamed `filledIcon` to `activeIcon` for clarity
+  - Now supports custom widgets for both inactive and active states
+  - Enables greater flexibility for navigation icon designs
+- Updated `FluidNavItem` to work with widget-based icons
+- Updated example and documentation with new API usage
+
 ## [0.3.0] - 2026-01-21
 
 ### Enhanced

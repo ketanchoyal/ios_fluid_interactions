@@ -45,8 +45,8 @@ class FluidTrailingActionButtonConfig {
     this.shadowColor,
     this.shadowBlurRadius = 20,
     this.shadowSpreadRadius = 1,
-    this.width = 64, // Matches nav item width
-    this.height = 52, // Matches nav item height
+    this.width, // Matches nav item width
+    this.height, // Matches nav item height
     this.iconSize = 24, // Changed from 28 to match nav item icon size
     this.showCursorGlow = true,
     this.borderRadius = 40, // Changed from 40 to match nav item radius
@@ -96,12 +96,10 @@ class FluidTrailingActionButtonConfig {
   final double shadowSpreadRadius;
 
   /// Width of button.
-  /// Default: 64
-  final double width;
+  final double? width;
 
   /// Height of button.
-  /// Default: 50
-  final double height;
+  final double? height;
 
   /// Size of icon.
   /// Default: 24

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 /// Model representing a navigation destination in [FluidBottomNavBar].
 ///
-/// Combines icon, label, and optional filled icon into a single model.
+/// Combines icon widgets and label into a single model.
 /// Use this to define navigation items instead of passing icons and labels separately.
 ///
 /// ## Example
@@ -10,37 +10,38 @@ import 'package:flutter/material.dart';
 /// ```dart
 /// final destinations = [
 ///   FluidNavDestination(
-///     icon: Icons.home,
-///     filledIcon: Icons.home_filled,
+///     icon: Icon(Icons.home),
+///     activeIcon: Icon(Icons.home_filled),
 ///     label: 'Home',
 ///   ),
 ///   FluidNavDestination(
-///     icon: Icons.flag,
-///     label: 'Goals',
+///     icon: CustomInactiveWidget(),
+///     activeIcon: CustomActiveWidget(),
+///     label: 'Custom',
 ///   ),
 ///   FluidNavDestination(
-///     icon: Icons.history,
-///     label: 'History',
+///     icon: CustomWidget(), // Used for both states if activeIcon is null
+///     label: 'Both',
 ///   ),
 /// ];
 /// ```
 class FluidNavDestination {
-  const FluidNavDestination({
-    required this.icon,
-    required this.label,
-    this.filledIcon,
-    this.key,
-  });
+  const FluidNavDestination({this.icon, this.activeIcon, this.label, this.key})
+    : assert(
+        icon != null || activeIcon != null,
+        'At least one of icon or activeIcon must be provided',
+      );
 
-  /// Icon to display for inactive state.
-  final IconData icon;
+  /// Widget to display for inactive state.
+  /// Used for both states if [activeIcon] is null.
+  final Widget? icon;
+
+  /// Optional widget for active state.
+  /// If null, [icon] is used for both states.
+  final Widget? activeIcon;
 
   /// Label text to display below the icon.
-  final String label;
-
-  /// Optional icon for active/filled state.
-  /// If null, [icon] is used for both states.
-  final IconData? filledIcon;
+  final String? label;
 
   /// Optional key for identifying this destination.
   final Key? key;
@@ -51,28 +52,28 @@ class FluidNavDestination {
       other is FluidNavDestination &&
           runtimeType == other.runtimeType &&
           icon == other.icon &&
-          label == other.label &&
-          filledIcon == other.filledIcon;
+          activeIcon == other.activeIcon &&
+          label == other.label;
 
   @override
-  int get hashCode => icon.hashCode ^ label.hashCode ^ filledIcon.hashCode;
+  int get hashCode => icon.hashCode ^ activeIcon.hashCode ^ label.hashCode;
 
   @override
   String toString() {
-    return 'FluidNavDestination(icon: $icon, label: $label, filledIcon: $filledIcon)';
+    return 'FluidNavDestination(icon: $icon, activeIcon: $activeIcon, label: $label)';
   }
 
   /// Creates a copy of this destination with the given fields replaced.
   FluidNavDestination copyWith({
-    IconData? icon,
+    Widget? icon,
+    Widget? activeIcon,
     String? label,
-    IconData? filledIcon,
     Key? key,
   }) {
     return FluidNavDestination(
       icon: icon ?? this.icon,
+      activeIcon: activeIcon ?? this.activeIcon,
       label: label ?? this.label,
-      filledIcon: filledIcon ?? this.filledIcon,
       key: key ?? this.key,
     );
   }

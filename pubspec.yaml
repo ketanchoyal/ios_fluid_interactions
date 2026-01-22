@@ -2,7 +2,7 @@ name: ios_fluid_interactions
 description: iOS-style fluid interactions for Flutter - spring physics, elastic animations, drag-to-select menus, and glow effects.
 repository: https://github.com/ketanchoyal/ios_fluid_interactions
 issue_tracker: https://github.com/ketanchoyal/ios_fluid_interactions/issues
-version: 0.3.0
+version: 0.4.0
 
 environment:
   sdk: ^3.10.4

@@ -472,7 +472,14 @@ class _FluidBottomNavBarState extends State<FluidBottomNavBar>
             else if (widget.trailingButtonConfig != null)
               FluidTrailingActionButton(
                 currentIndex: widget.currentIndex,
-                config: widget.trailingButtonConfig!,
+                config: widget.trailingButtonConfig!.copyWith(
+                  width:
+                      widget.trailingButtonConfig!.width ??
+                      resolvedTheme.navItemWidth,
+                  height:
+                      widget.trailingButtonConfig!.height ??
+                      resolvedTheme.navItemHeight,
+                ),
               ),
           ],
         );
@@ -484,67 +491,72 @@ class _FluidBottomNavBarState extends State<FluidBottomNavBar>
     ResolvedFluidBottomNavBarTheme theme,
     bool isShrunk,
   ) {
-    return ClipRRect(
-      borderRadius: BorderRadius.all(Radius.circular(theme.borderRadius)),
-      child: Glow(
-        enabled: widget.enableGlow,
-        child: Container(
-          padding: EdgeInsets.symmetric(vertical: 0, horizontal: 2),
-          decoration: BoxDecoration(
-            color: theme.backgroundColor,
-            boxShadow: [
-              BoxShadow(
-                color: theme.shadowColor.withValues(alpha: 0.1),
-                blurRadius: theme.shadowBlurRadius,
-                spreadRadius: theme.shadowSpreadRadius,
-              ),
-            ],
-            borderRadius: BorderRadius.all(
-              Radius.circular(theme.borderRadius * 0.98),
-            ),
-            border: Border.all(color: theme.borderColor, width: 1),
-          ),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-            child: Stack(
-              // fit: StackFit.passthrough,
-              // clipBehavior: Clip.antiAliasWithSaveLayer,
-              children: [
-                // Highlight overlay
-                // ValueListenableBuilder<Rect?>(
-                //   valueListenable: _highlightedRect,
-                //   builder: (context, rect, child) {
-                //     if (rect == null) return const SizedBox.shrink();
-                //     return AnimatedPositioned.fromRect(
-                //       rect: rect,
-                //       duration: const Duration(milliseconds: 150),
-                //       curve: Curves.fastOutSlowIn,
-                //       child: Container(
-                //         decoration: BoxDecoration(
-                //           color: Colors.white.withValues(alpha: 0.1),
-                //           borderRadius: BorderRadius.circular(25),
-                //         ),
-                //       ),
-                //     );
-                //   },
-                // ),
-
-                // Nav items
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    for (int i = 0; i < widget.destinations.length; i++)
-                      _buildNavItem(
-                        key: _navItemKeys[i],
-                        index: i,
-                        destination: widget.destinations[i],
-                        isShrunk: isShrunk,
-                        theme: theme,
-                      ),
-                  ],
+    return Padding(
+      padding: theme.outerPadding,
+      child: ClipRRect(
+        borderRadius: BorderRadius.all(Radius.circular(theme.borderRadius)),
+        child: Glow(
+          enabled: widget.enableGlow,
+          child: Container(
+            decoration: BoxDecoration(
+              color: theme.backgroundColor,
+              boxShadow: [
+                BoxShadow(
+                  color: theme.shadowColor.withValues(alpha: 0.1),
+                  blurRadius: theme.shadowBlurRadius,
+                  spreadRadius: theme.shadowSpreadRadius,
                 ),
               ],
+              borderRadius: BorderRadius.all(
+                Radius.circular(theme.borderRadius * 0.98),
+              ),
+              border: Border.all(width: 1),
+            ),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+              child: Stack(
+                // fit: StackFit.passthrough,
+                // clipBehavior: Clip.antiAliasWithSaveLayer,
+                children: [
+                  // Highlight overlay
+                  // ValueListenableBuilder<Rect?>(
+                  //   valueListenable: _highlightedRect,
+                  //   builder: (context, rect, child) {
+                  //     if (rect == null) return const SizedBox.shrink();
+                  //     return AnimatedPositioned.fromRect(
+                  //       rect: rect,
+                  //       duration: const Duration(milliseconds: 150),
+                  //       curve: Curves.fastOutSlowIn,
+                  //       child: Container(
+                  //         decoration: BoxDecoration(
+                  //           color: Colors.white.withValues(alpha: 0.1),
+                  //           borderRadius: BorderRadius.circular(25),
+                  //         ),
+                  //       ),
+                  //     );
+                  //   },
+                  // ),
+
+                  // Nav items
+                  Padding(
+                    padding: theme.innerPadding,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        for (int i = 0; i < widget.destinations.length; i++)
+                          _buildNavItem(
+                            key: _navItemKeys[i],
+                            index: i,
+                            destination: widget.destinations[i],
+                            isShrunk: isShrunk,
+                            theme: theme,
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -563,10 +575,6 @@ class _FluidBottomNavBarState extends State<FluidBottomNavBar>
     // Show label if selected OR if nav bar is NOT shrunk
     final isVisible = isSelected || !isShrunk;
     final isHighlighted = _highlightedIndex == index;
-
-    final displayIcon = isSelected && destination.filledIcon != null
-        ? destination.filledIcon!
-        : destination.icon;
 
     final scale = _safe(_scale.value, 1.0);
     final deformX = _safe(_deformX.value, 1.0);
@@ -598,7 +606,8 @@ class _FluidBottomNavBarState extends State<FluidBottomNavBar>
             child: widget.itemBuilder != null
                 ? widget.itemBuilder!(context, index, destination, isSelected)
                 : FluidNavItem(
-                    icon: displayIcon,
+                    icon: destination.icon!,
+                    activeIcon: destination.activeIcon,
                     label: destination.label,
                     isActive: isSelected,
                     isHighlighted: isHighlighted,

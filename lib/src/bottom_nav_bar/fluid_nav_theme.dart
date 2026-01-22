@@ -25,7 +25,10 @@ class FluidBottomNavBarTheme {
     this.labelTextStyle,
     this.borderRadius,
     this.navItemWidth,
+    this.navItemHeight,
     this.iconSize,
+    this.outerPadding,
+    this.innerPadding,
     this.shadowBlurRadius,
     this.shadowSpreadRadius,
     this.glowRadius,
@@ -86,6 +89,10 @@ class FluidBottomNavBarTheme {
   /// Default: 64
   final double? navItemWidth;
 
+  /// Height of the navigation bar.
+  /// Default: 70
+  final double? navItemHeight;
+
   /// Size of navigation icons.
   /// Default: 24
   final double? iconSize;
@@ -122,6 +129,14 @@ class FluidBottomNavBarTheme {
   /// Default: 200ms
   final Duration? opacityAnimationDuration;
 
+  /// Optional outer padding to apply around bottom navigation container.
+  /// Default: .zero
+  final EdgeInsetsGeometry? outerPadding;
+
+  /// Optional inner padding for nav items.
+  /// Default: .all(4)
+  final EdgeInsetsGeometry? innerPadding;
+
   // ==========================================================================
   // HELPERS - Get value with default
   // ==========================================================================
@@ -138,6 +153,7 @@ class FluidBottomNavBarTheme {
       const TextStyle(fontSize: 10, letterSpacing: 0.2, height: 1.3);
   double _getBorderRadius() => borderRadius ?? 45;
   double _getNavItemWidth() => navItemWidth ?? 64;
+  double _getNavItemHeight() => navItemHeight ?? 50;
   double _getIconSize() => iconSize ?? 20;
   double _getShadowBlurRadius() => shadowBlurRadius ?? 20;
   double _getShadowSpreadRadius() => shadowSpreadRadius ?? 10;
@@ -148,6 +164,9 @@ class FluidBottomNavBarTheme {
       scaleAnimationDuration ?? const Duration(milliseconds: 300);
   Duration _getOpacityAnimationDuration() =>
       opacityAnimationDuration ?? const Duration(milliseconds: 200);
+  EdgeInsetsGeometry _getOuterPadding() => outerPadding ?? EdgeInsets.zero;
+  EdgeInsetsGeometry _getInnerPadding() =>
+      innerPadding ?? const EdgeInsets.all(4);
 
   // ==========================================================================
   // FACTORY CONSTRUCTORS - For convenience
@@ -203,6 +222,7 @@ class FluidBottomNavBarTheme {
     TextStyle? labelTextStyle,
     double? borderRadius,
     double? navItemWidth,
+    double? navItemHeight,
     double? iconSize,
     double? shadowBlurRadius,
     double? shadowSpreadRadius,
@@ -222,6 +242,7 @@ class FluidBottomNavBarTheme {
       labelTextStyle: labelTextStyle ?? this.labelTextStyle,
       borderRadius: borderRadius ?? this.borderRadius,
       navItemWidth: navItemWidth ?? this.navItemWidth,
+      navItemHeight: navItemHeight ?? this.navItemHeight,
       iconSize: iconSize ?? this.iconSize,
       shadowBlurRadius: shadowBlurRadius ?? this.shadowBlurRadius,
       shadowSpreadRadius: shadowSpreadRadius ?? this.shadowSpreadRadius,
@@ -253,10 +274,12 @@ class FluidBottomNavBarTheme {
       labelTextStyle: _getLabelTextStyle(),
       borderRadius: _getBorderRadius(),
       navItemWidth: _getNavItemWidth(),
+      navItemHeight: _getNavItemHeight(),
       iconSize: _getIconSize(),
       shadowBlurRadius: _getShadowBlurRadius(),
       shadowSpreadRadius: _getShadowSpreadRadius(),
-
+      outerPadding: _getOuterPadding(),
+      innerPadding: _getInnerPadding(),
       glowRadius: _getGlowRadius(),
       shrinkAnimationDuration: _getShrinkAnimationDuration(),
       scaleAnimationDuration: _getScaleAnimationDuration(),
@@ -278,10 +301,12 @@ class ResolvedFluidBottomNavBarTheme {
     required this.labelTextStyle,
     required this.borderRadius,
     required this.navItemWidth,
+    required this.navItemHeight,
     required this.iconSize,
     required this.shadowBlurRadius,
     required this.shadowSpreadRadius,
-
+    required this.outerPadding,
+    required this.innerPadding,
     required this.glowRadius,
     required this.shrinkAnimationDuration,
     required this.scaleAnimationDuration,
@@ -298,10 +323,12 @@ class ResolvedFluidBottomNavBarTheme {
   final TextStyle labelTextStyle;
   final double borderRadius;
   final double navItemWidth;
+  final double navItemHeight;
   final double iconSize;
   final double shadowBlurRadius;
   final double shadowSpreadRadius;
-
+  final EdgeInsetsGeometry outerPadding;
+  final EdgeInsetsGeometry innerPadding;
   final double glowRadius;
   final Duration shrinkAnimationDuration;
   final Duration scaleAnimationDuration;

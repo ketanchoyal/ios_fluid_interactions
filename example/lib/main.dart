@@ -99,7 +99,7 @@ class _DemoScreenState extends State<DemoScreen> {
 
             // Custom Theme
             theme: FluidBottomNavBarTheme(
-              backgroundColor: Colors.white.withOpacity(0.5),
+              backgroundColor: Colors.white.withValues(alpha: 0.5),
               iconActiveColor: Colors.white,
               iconInactiveColor: Colors.white38,
               shadowColor: Colors.white,
@@ -109,19 +109,19 @@ class _DemoScreenState extends State<DemoScreen> {
 
             // Navigation Items
             destinations: [
-              const FluidNavDestination(
-                icon: CupertinoIcons.home,
-                filledIcon: CupertinoIcons.house_fill,
+              FluidNavDestination(
+                icon: const Icon(CupertinoIcons.home),
+                activeIcon: const Icon(CupertinoIcons.house_fill),
                 label: 'Home',
               ),
-              const FluidNavDestination(
-                icon: CupertinoIcons.compass,
-                filledIcon: CupertinoIcons.compass_fill,
+              FluidNavDestination(
+                icon: const Icon(CupertinoIcons.compass),
+                activeIcon: const Icon(CupertinoIcons.compass_fill),
                 label: 'Explore',
               ),
-              const FluidNavDestination(
-                icon: CupertinoIcons.person,
-                filledIcon: CupertinoIcons.person_fill,
+              FluidNavDestination(
+                icon: const Icon(CupertinoIcons.person),
+                activeIcon: const Icon(CupertinoIcons.person_fill),
                 label: 'Profile',
               ),
             ],
