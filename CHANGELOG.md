@@ -5,6 +5,16 @@ All notable changes to the iOS Fluid Interactions package will be documented in 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2026-01-27
+
+### Enhanced
+- Improved haptic feedback on Android platform with fallback to `vibrate()` for better compatibility
+- Added haptic feedback to `ElasticTapGesture` for more responsive user interaction
+- Enhanced haptic feedback consistency across gesture handlers
+
+### Fixed
+- Updated `TrailingActionTapCallback` to include `BuildContext` parameter for better context access
+
 ## [0.4.0] - 2026-01-21
 
 ### Enhanced

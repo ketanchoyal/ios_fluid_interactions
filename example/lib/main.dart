@@ -152,7 +152,7 @@ class _DemoScreenState extends State<DemoScreen> {
                 if (currentIndex == 2) return CupertinoIcons.add;
                 return CupertinoIcons.add;
               },
-              onTap: (index) {
+              onTap: (index, _) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text('Action on tab $index'),

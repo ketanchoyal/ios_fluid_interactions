@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/physics.dart';
 import 'package:ios_fluid_interactions/src/glow_painter.dart';
 
@@ -288,6 +290,13 @@ class _ElasticTapGestureState extends State<ElasticTapGesture>
 
     // Stop any running animations to start fresh
     _stopAll();
+
+    // Trigger haptic feedback
+    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+      HapticFeedback.vibrate();
+    } else {
+      HapticFeedback.lightImpact();
+    }
 
     // --- Calculate target scale ---
     if (widget.scaling == Scaling.adaptive) {

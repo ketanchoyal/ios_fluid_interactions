@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter/services.dart';
@@ -263,7 +264,18 @@ class _FluidBottomNavBarState extends State<FluidBottomNavBar>
 
     final index = _getItemIndexAtPosition(event.position);
     if (index != null) {
-      HapticFeedback.mediumImpact();
+      // HapticFeedback.mediumImpact() is ignored on some Android versions if not enabled in system settings
+      // Using HapticFeedback.vibrate() as a more reliable fallback for Android if needed,
+      // but mediumImpact is generally correct.
+      // The issue might be that on Android, these calls are sometimes ignored if the user hasn't enabled haptics.
+      // However, we can try to force it or ensure it's called.
+      // Another possibility is using Platform check to invoke different feedback.
+      if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+        HapticFeedback.vibrate();
+      } else {
+        HapticFeedback.mediumImpact();
+      }
+
       setState(() {
         _isDragging = true;
         _highlightedIndex = index;
@@ -319,7 +331,11 @@ class _FluidBottomNavBarState extends State<FluidBottomNavBar>
 
         // Optional: Trigger light haptic on re-entry/change
         if (justReEntered || index != _highlightedIndex) {
-          HapticFeedback.selectionClick();
+          if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+            HapticFeedback.vibrate();
+          } else {
+            HapticFeedback.selectionClick();
+          }
         }
       }
     }

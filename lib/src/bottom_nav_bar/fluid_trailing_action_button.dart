@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:ios_fluid_interactions/ios_fluid_interactions.dart';
 
 /// Callback type for trailing action button tap events with index.
-typedef TrailingActionTapCallback = void Function(int index);
+typedef TrailingActionTapCallback =
+    void Function(int index, BuildContext context);
 
 /// Builder for custom trailing button content.
 typedef TrailingButtonBuilder =
@@ -257,7 +258,7 @@ class _FluidTrailingActionButtonState extends State<FluidTrailingActionButton>
     }
 
     Widget child = ElasticTapGesture(
-      onTap: () => config.onTap(widget.currentIndex),
+      onTap: () => config.onTap(widget.currentIndex, context),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(config.borderRadius),
         child: Container(
@@ -318,7 +319,7 @@ class _FluidTrailingActionButtonState extends State<FluidTrailingActionButton>
       return config.builder!(
         context,
         widget.currentIndex,
-        () => config.onTap(widget.currentIndex),
+        () => config.onTap(widget.currentIndex, context),
         child,
       );
     }
